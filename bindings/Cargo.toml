@@ -6,6 +6,11 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+lto = "on"
+opt-level = "s"
+strip = "symbols"
+
 [dependencies]
 windows = { git = "https://github.com/microsoft/windows-rs" }
 
