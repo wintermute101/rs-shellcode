@@ -5,10 +5,10 @@ A shellcode runner write in Rust use [windows-rs](https://github.com/microsoft/w
 
 # how to use it
 
-Install [rustup](https://rustup.rs/), use nightly toochain.
+Install [rustup](https://rustup.rs/).
 
 ```sh
-rustup default nightly
+rustup default
 ```
 
 Use msfvenom generate shellcode for test.
@@ -28,11 +28,10 @@ Build:
 cargo build --release
 ```
 
-On linux using cross
+On linux using [cross](https://github.com/cross-rs/cross):
 ```sh
 cross build -r --target=x86_64-pc-windows-gnu
 ```
-
 
 Usage:
 ```
