@@ -6,6 +6,13 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+lto = "on"
+strip = true 
+opt-level = "z"
+codegen-units = 1
+panic = "abort"
+
 [dependencies]
 bindings = { package = "rs_shellcode_bindings", path = "bindings" }
 clap = "3.0.0-beta.2"
