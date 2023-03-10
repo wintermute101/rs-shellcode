@@ -14,6 +14,6 @@ codegen-units = 1
 panic = "abort"
 
 [dependencies]
-bindings = { package = "rs_shellcode_bindings", path = "bindings" }
+region = "3.0.0"
 clap = "3.0.0-beta.2"
 houdini = "1.0.2"

@@ -58,12 +58,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "const-sha1"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb58b6451e8c2a812ad979ed1d83378caa5e927eef2622017a45f251457c2c9d"
-
-[[package]]
 name = "hashbrown"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -119,6 +113,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ccac4b00700875e6a07c6cde370d44d32fa01c5a65cdd2fca6858c479d28bb3"
 
 [[package]]
+name = "mach"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b823e83b2affd8f40a9ee8c29dbc56404c1e34cd2710921f2801e2cf29527afa"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "os_str_bytes"
 version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -167,26 +170,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "region"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76e189c2369884dce920945e2ddf79b3dff49e071a167dd1817fa9c4c00d512e"
+dependencies = [
+ "bitflags",
+ "libc",
+ "mach",
+ "winapi",
+]
+
+[[package]]
 name = "rs_shellcode"
 version = "0.1.0"
 dependencies = [
  "clap",
  "houdini",
- "rs_shellcode_bindings",
+ "region",
 ]
-
-[[package]]
-name = "rs_shellcode_bindings"
-version = "0.1.0"
-dependencies = [
- "windows",
-]
-
-[[package]]
-name = "squote"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fccf17fd09e2455ea796d2ad267b64fa2c5cbd8701b2a93b555d2aa73449f7d"
 
 [[package]]
 name = "strsim"
@@ -283,68 +285,3 @@ name = "winapi-x86_64-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
-
-[[package]]
-name = "windows"
-version = "0.2.1"
-source = "git+https://github.com/microsoft/windows-rs#721dbd4f717be5d53a06a98f36bc730202e22597"
-dependencies = [
- "const-sha1",
- "windows_gen",
- "windows_macros",
- "windows_winmd",
-]
-
-[[package]]
-name = "windows_gen"
-version = "0.2.1"
-source = "git+https://github.com/microsoft/windows-rs#721dbd4f717be5d53a06a98f36bc730202e22597"
-dependencies = [
- "proc-macro2",
- "quote",
- "squote",
- "syn",
- "windows_gen_macros",
- "windows_winmd",
-]
-
-[[package]]
-name = "windows_gen_macros"
-version = "0.2.1"
-source = "git+https://github.com/microsoft/windows-rs#721dbd4f717be5d53a06a98f36bc730202e22597"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "windows_macros"
-version = "0.2.1"
-source = "git+https://github.com/microsoft/windows-rs#721dbd4f717be5d53a06a98f36bc730202e22597"
-dependencies = [
- "proc-macro2",
- "quote",
- "squote",
- "syn",
- "windows_gen",
- "windows_winmd",
-]
-
-[[package]]
-name = "windows_winmd"
-version = "0.2.1"
-source = "git+https://github.com/microsoft/windows-rs#721dbd4f717be5d53a06a98f36bc730202e22597"
-dependencies = [
- "windows_winmd_macros",
-]
-
-[[package]]
-name = "windows_winmd_macros"
-version = "0.2.1"
-source = "git+https://github.com/microsoft/windows-rs#721dbd4f717be5d53a06a98f36bc730202e22597"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]

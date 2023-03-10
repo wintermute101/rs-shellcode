@@ -1,9 +1,8 @@
 use std::arch::asm;
 use std::process::Termination;
 use houdini;
+use region::{Protection};
 
-// #![windows_subsystem = "windows"]
-use bindings::windows::win32::system_services::VirtualAlloc;
 use clap::{App, Arg};
 pub const PAGE_EXECUTE_READWRITE: u32 = 0x40;
 pub const MEM_COMMIT: u32 = 0x1000;
@@ -123,25 +122,19 @@ fn main() -> ShellExit {
             offset, flen
         ));
     }
-    let new_buf = unsafe {
-        VirtualAlloc(
-            std::ptr::null_mut(),
-            flen,
-            MEM_COMMIT | MEM_RESERVE,
-            PAGE_EXECUTE_READWRITE,
-        )
+
+    let mut alloc = match region::alloc(100, Protection::READ_WRITE_EXECUTE){
+        Ok(a) => a,
+        Err(e) => {return ShellExit::err(&format!("Reading shellcode error: {}", e));},
     };
-    if new_buf == std::ptr::null_mut() {
-        return ShellExit::err("Failed to allocate memory");
-    }
-    let new_buf_ptr: *mut u8 = new_buf as *mut u8 as _;
-    unsafe { std::ptr::copy_nonoverlapping(contents.as_ptr(), new_buf_ptr, flen) };
+
+    unsafe { std::ptr::copy_nonoverlapping(contents.as_ptr(), alloc.as_mut_ptr(), flen) };
     println!(
         "[*] Starting jmp to shellcode at offset 0x{:x} (base virtual address: {:p})",
-        offset, new_buf_ptr
+        offset, alloc.as_ptr() as *const u8
     );
     unsafe {
-        let jmp_target = new_buf.offset(offset as isize);
+        let jmp_target = (alloc.as_ptr() as *const u8).offset(offset as isize);
         if set_breakpoint {
             asm!("int 3");
         }
