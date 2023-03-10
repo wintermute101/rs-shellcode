@@ -28,6 +28,12 @@ Build:
 cargo build --release
 ```
 
+On linux using cross
+```sh
+cross build -r --target=x86_64-pc-windows-gnu
+```
+
+
 Usage:
 ```
 rs_shellcode 
