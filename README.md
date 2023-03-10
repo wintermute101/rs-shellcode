@@ -17,10 +17,15 @@ Use msfvenom generate shellcode for test.
 msfvenom -p windows/x64/exec CMD=calc.exe  --platform win -f raw -o calc64.raw
 ```
 
+XOR obfuscated payload.
+```sh
+msfvenom --platform windows --arch x64  -p windows/x64/exec CMD=calc.exe -f raw --encrypt xor --encrypt-key "\x55"
+```
+
 Build:
 
 ```sh
-cargo build
+cargo build --release
 ```
 
 Usage:
@@ -38,6 +43,7 @@ FLAGS:
 OPTIONS:
     -f <file>          shellcode path
     -o <offset>        shellcode offset
+    -x <xor>           deobfuscate with XOR encoding
 ```
 
 Run:
