@@ -8,8 +8,10 @@ edition = "2018"
 
 [profile.release]
 lto = "on"
-opt-level = "s"
-strip = "symbols"
+strip = true 
+opt-level = "z"
+codegen-units = 1
+panic = "abort"
 
 [dependencies]
 windows = { git = "https://github.com/microsoft/windows-rs" }
