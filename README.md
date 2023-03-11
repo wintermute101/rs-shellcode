@@ -21,6 +21,11 @@ XOR obfuscated payload.
 msfvenom --platform windows --arch x64  -p windows/x64/exec CMD=calc.exe -f raw --encrypt xor --encrypt-key "\x55"
 ```
 
+XOR obfuscated payload for linux.
+```sh
+sfvenom --platform linux --arch x64  -p linux/x64/exec  -f python --encrypt xor --encrypt-key "\x55"
+```
+
 Build:
 
 ```sh
