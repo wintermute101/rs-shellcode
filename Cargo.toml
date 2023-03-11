@@ -1,6 +1,6 @@
 [package]
 name = "rs_shellcode"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["b1tg <b1tg@users.noreply.github.com>", "Maciej Skrzypek <maciek.skrzypek [at] gmail.com"]
 edition = "2018"
 
@@ -15,5 +15,6 @@ panic = "abort"
 
 [dependencies]
 region = "3.0.0"
-clap = "3.0.0-beta.2"
+clap = {version = "4.1.8", features = ["cargo"]}
 houdini = "1.0.2"
+parse_int = "0.6.0"

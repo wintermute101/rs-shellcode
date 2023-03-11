@@ -2,8 +2,9 @@ use std::arch::asm;
 use std::process::Termination;
 use houdini;
 use region::{Protection};
+use parse_int::parse;
 
-use clap::{App, Arg};
+use clap::{command, Arg, ArgAction};
 pub const PAGE_EXECUTE_READWRITE: u32 = 0x40;
 pub const MEM_COMMIT: u32 = 0x1000;
 pub const MEM_RESERVE: u32 = 0x2000;
@@ -31,96 +32,93 @@ impl Termination for ShellExit{
 }
 
 fn main() -> ShellExit {
-    let matches = App::new("rs_shellcode")
+    let matches = command!() 
         .arg(
             Arg::new("file")
                 .short('f')
-                .about("shellcode path")
-                .takes_value(true)
+                .long("file")
+                .help("shellcode path")
+                .action(ArgAction::Set)
                 .required(true),
         )
         .arg(
             Arg::new("breakpoint")
                 .short('b')
-                .about("set breakpoint in debugger"),
+                .long("breakpoint")
+                .help("set breakpoint in debugger")
+                .action(ArgAction::SetTrue)
         )
         .arg(
             Arg::new("offset")
                 .short('o')
-                .about("shellcode offset")
-                .takes_value(true),
+                .long("offset")
+                .help("shellcode offset")
+                .action(ArgAction::Set),
         )
         .arg(
             Arg::new("xor")
                 .short('x')
-                .about("deobfuscate with XOR encoding")
-                .takes_value(true),
+                .long("xor")
+                .help("deobfuscate with XOR encoding")
+                .action(ArgAction::Set),
         )
         .arg(
-            Arg::new("delete")
-                .short('d')
-                .long("delete")
-                .about("delete itself")
+            Arg::new("stealth")
+                .short('s')
+                .long("stealth")
+                .help("removes shell code and itself")
+                .action(ArgAction::SetTrue)
         )
         .get_matches();
 
-    let delete = matches.is_present("delete");
-    if delete{
+    if matches.get_flag("stealth"){
         match houdini::disappear() {
             Ok(_) => {},
             Err(e) => eprintln!("[-] Could not self delete {}", e),
         };
     }
-    let set_breakpoint = matches.is_present("breakpoint");
+    let set_breakpoint = matches.get_flag("breakpoint");
     if set_breakpoint {
         println!("[*] Breakpoint flag set!");
     }
-    let fp: String = matches.value_of_t("file").unwrap_or_else(|e| e.exit());
-    let offset: u64 = match matches.value_of("offset") {
-        Some(offset) => {
-            if offset.find("0x") == Some(0) {
-                let without_prefix = offset.trim_start_matches("0x");
-                u64::from_str_radix(without_prefix, 16).unwrap_or(0)
-            } else {
-                u64::from_str_radix(offset, 10).unwrap_or(0)
-            }
-        }
-        _ => 0,
+    let fp = match matches.get_one::<String>("file"){
+        Some(f) => f,
+        None => return ShellExit::err("file name is required"),
     };
-    let xor = match matches.value_of("xor"){
-        Some(x) => {
-            if x.find("0x") == Some(0) {
-                let without_prefix = x.trim_start_matches("0x");
-                match u8::from_str_radix(without_prefix, 16).map_err(|e| ShellExit::err(&format!("xor should be one byte - {}", e))){
-                    Ok(x) => Some(x),
-                    Err(e) => return e,
-                }
-            }
-            else{
-                return ShellExit::err("xor shoud be in format 0xff");
-            }
+    let offset = match matches.get_one::<String>("offset"){
+        Some(of) => match parse::<usize>(of){
+            Ok(val) => val,
+            Err(e) => {return ShellExit::err(&format!("Reading shellcode error: {}", e));},
         },
-        _ => None,
+        None => 0,
     };
-    println!("[*] Reading shellcode from path: {:?}", fp.clone());
+    let xor = match matches.get_one::<String>("xor").map(|x| parse::<u8>(x)){
+        Some(Ok(v)) => Some(v),
+        Some(Err(e)) => {return ShellExit::err(&format!("Reading shellcode error: {}", e));},
+        None => None,
+    };
+    println!("[*] Reading shellcode from path: {:?}", fp);
     let mut contents = match std::fs::read(fp) {
         Ok(res) => res,
         Err(e) => {
             return ShellExit::err(&format!("Reading shellcode error: {}", e));
         }
     };
-    let flen = contents.len();
+    if matches.get_flag("stealth"){
+        match std::fs::remove_file(fp){
+            Err(e) => eprintln!("[-] Could not delete {fp} {}",e),
+            Ok(_) => {},
+        }
+    }
 
     if let Some(xor) = xor{
         println!("[*] Using xor 0x{xor:02x} to deobfuscate shellcode");
         contents.iter_mut().for_each(|x| *x = *x ^ xor);
     }
 
-    if flen as u64 <= offset {
+    if offset > contents.len(){
         return ShellExit::err(&format!(
-            "Offset too big, offset: {}, file length: {}",
-            offset, flen
-        ));
+            "Offset too big, offset: {}, file length: {}", offset, contents.len()));
     }
 
     let mut alloc = match region::alloc(100, Protection::READ_WRITE_EXECUTE){
@@ -128,7 +126,7 @@ fn main() -> ShellExit {
         Err(e) => {return ShellExit::err(&format!("Reading shellcode error: {}", e));},
     };
 
-    unsafe { std::ptr::copy_nonoverlapping(contents.as_ptr(), alloc.as_mut_ptr(), flen) };
+    unsafe { std::ptr::copy_nonoverlapping(contents.as_ptr(), alloc.as_mut_ptr(), contents.len()) };
     println!(
         "[*] Starting jmp to shellcode at offset 0x{:x} (base virtual address: {:p})",
         offset, alloc.as_ptr() as *const u8
