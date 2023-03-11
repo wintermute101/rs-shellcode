@@ -35,20 +35,16 @@ cross build -r --target=x86_64-pc-windows-gnu
 
 Usage:
 ```
-rs_shellcode 
+Usage: rs_shellcode [OPTIONS] --file <file>
 
-USAGE:
-    rs_shellcode.exe [FLAGS] [OPTIONS] -f <file>
-
-FLAGS:
-    -b               set breakpoint in debugger
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-    -f <file>          shellcode path
-    -o <offset>        shellcode offset
-    -x <xor>           deobfuscate with XOR encoding
+Options:
+  -f, --file <file>      shellcode path
+  -b, --breakpoint       set breakpoint in debugger
+  -o, --offset <offset>  shellcode offset
+  -x, --xor <xor>        deobfuscate with XOR encoding
+  -s, --stealth          removes shell code and itself
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 Run:
