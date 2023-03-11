@@ -1,7 +1,6 @@
 # rs-shellcode
 
-A shellcode runner write in Rust use [windows-rs](https://github.com/microsoft/windows-rs).
-
+A shellcode runner write in Rust.
 
 # how to use it
 
