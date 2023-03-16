@@ -121,10 +121,12 @@ fn main() -> ShellExit {
             "Offset too big, offset: {}, file length: {}", offset, contents.len()));
     }
 
-    let mut alloc = match region::alloc(100, Protection::READ_WRITE_EXECUTE){
+    let mut alloc = match region::alloc(contents.len(), Protection::READ_WRITE_EXECUTE){
         Ok(a) => a,
         Err(e) => {return ShellExit::err(&format!("Reading shellcode error: {}", e));},
     };
+
+    assert!(alloc.len() >= contents.len());
 
     unsafe { std::ptr::copy_nonoverlapping(contents.as_ptr(), alloc.as_mut_ptr(), contents.len()) };
     println!(
